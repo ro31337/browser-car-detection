@@ -159,7 +159,9 @@ function predictWebcam() {
         children.push(highlighter);
         children.push(p);
 
-        if (predictions[n].class.toLowerCase() === 'car' || predictions[n].class.toLowerCase() === 'vehicle') {
+        const width = predictions[n].bbox[2];
+
+        if ((predictions[n].class.toLowerCase() === 'car' || predictions[n].class.toLowerCase() === 'vehicle') && width >= 180) {
 
           console.log('car or vehicle detected');
 
