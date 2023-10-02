@@ -176,6 +176,7 @@ function predictWebcam() {
 
           // Check the time difference to manage the rate limit.
           if (currentTime - lastUploadedTime >= 2000) {
+            lastUploadedTime = currentTime;
             canvas.toBlob(blob => {
               if (!blob) {
                 console.error('Blob creation failed!');
@@ -226,9 +227,6 @@ function predictWebcam() {
                 .catch(error => {
                   console.error('Error during API call', error);
                 });
-
-              lastUploadedTime = currentTime;
-
             }, 'image/jpeg');
           }
         }
