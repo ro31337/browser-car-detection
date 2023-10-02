@@ -123,7 +123,6 @@ function enableCam(event) {
   });
 }
 
-
 let lastUploadedTime = 0; // Keeps track of the last time an image was uploaded.
 
 function predictWebcam() {
@@ -134,6 +133,7 @@ function predictWebcam() {
     }
     children.splice(0);
 
+    let highligher = null;
     // Loop through predictions and draw them to the live view if
     // they have a high confidence score.
     for (let n = 0; n < predictions.length; n++) {
@@ -146,7 +146,7 @@ function predictWebcam() {
           'top: ' + predictions[n].bbox[1] + 'px;' +
           'width: ' + (predictions[n].bbox[2] - 10) + 'px;';
 
-        const highlighter = document.createElement('div');
+        highlighter = document.createElement('div');
         highlighter.setAttribute('class', 'highlighter');
         highlighter.style = 'left: ' + predictions[n].bbox[0] + 'px; top: '
           + predictions[n].bbox[1] + 'px; width: '
@@ -162,6 +162,29 @@ function predictWebcam() {
         if (predictions[n].class.toLowerCase() === 'car' || predictions[n].class.toLowerCase() === 'vehicle') {
 
           console.log('car or vehicle detected');
+
+          const [x, y, width, height] = predictions[n].bbox;
+
+          // Get the ImageData for the bounding box from the excludeMaskCanvas
+          const excludeCtx = excludeMaskCanvas.getContext('2d');
+          const excludeImageData = excludeCtx.getImageData(x, y, width, height).data;
+
+          // Check if there is any red pixel in the bounding box area of the excludeMaskCanvas
+          let shouldExclude = false;
+          for (let i = 0; i < excludeImageData.length; i += 4) {
+            if (excludeImageData[i] === 255 && excludeImageData[i + 1] === 0 && excludeImageData[i + 2] === 0) { // Check for red pixels
+              shouldExclude = true;
+              break;
+            }
+          }
+
+          if (shouldExclude) {
+            highlighter.setAttribute('class', 'highlighter2');
+            console.log('Skipping due to exclusion mask');
+            continue; // Skip the current prediction due to exclusion mask
+          }
+
+
           // Capture the current frame from the webcam.
           const canvas = document.createElement('canvas');
           canvas.width = video.videoWidth;
@@ -201,7 +224,7 @@ function predictWebcam() {
 
               const url = 'http://localhost:8010/proxy/v2/mmg/detect';
               const headers = new Headers({
-                'api-key': '1191ff03-4fbf-4deb-a65d-faa3cf625XXX', // FIXME!!!
+                'api-key': '1191ff03-4fbf-4deb-a65d-faa3cf62566f',
                 'accept': 'application/json',
               });
 

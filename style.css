@@ -70,6 +70,13 @@ header, footer {
   position: absolute;
 }
 
+.highlighter2 {
+  background: rgba(255, 0, 0, 0.25);
+  border: 1px dashed #f00;
+  z-index: 1;
+  position: absolute;
+}
+
 .classifyOnClick {
   z-index: 0;
 }
